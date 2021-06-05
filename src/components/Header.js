@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   MenuIcon,
   SearchIcon,
@@ -49,16 +50,13 @@ function Header() {
             </p>
             <p className="font-extrabold md:text-sm">Account & Lists</p>
           </div>
-
           <div
-            
+            onClick={() => session && router.push("/orders")}
             className="cursor-pointer link"
           >
-          {/*onClick={() => session && router.push("/orders")}*/}
             <p>Returns</p>
             <p className="font-extrabold md:text-sm">& Orders</p>
           </div>
-
           <div
             onClick={() => router.push("/checkout")}
             className="relative flex items-center cursor-pointer link"

@@ -1,3 +1,4 @@
+import React from 'react'
 import { StarIcon } from "@heroicons/react/solid"
 import Image from "next/image"
 import { useState } from "react";
