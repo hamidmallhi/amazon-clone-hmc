@@ -18,7 +18,7 @@ const app = !admin.apps.length ? admin.initializeApp({
 //   credential: admin.credential.cert(serviceAccount)
 // })
 : admin.app()
-
+console.log(projectId)
 // establish connection to stripe
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
