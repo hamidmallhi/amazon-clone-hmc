@@ -1,22 +1,31 @@
 import { buffer } from 'micro'
 import * as admin from 'firebase-admin'
+import * as functions from 'firebase-functions'
+
 
 // secure a connection to firebase from the backend
 // const serviceAccount = require('../../../permissions.json')
-const serviceAccount = require(process.env.SERVICE_ACCOUNTS_FILE)
+// const serviceAccount = require(process.env.SERVICE_ACCOUNTS_FILE)
 
 const app = !admin.apps.length ? admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert({
+    privateKey: functions.config().private.key.replace(/\\n/gm, '\n'),
+    projectId: functions.config().project.id,
+    clientEmail: functions.config().client.email
+  })
 }) 
+// const app = !admin.apps.length ? admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// })
 : admin.app()
 
 // establish connection to stripe
-
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 const endpointSecret = process.env.STRIPE_SIGNING_SECRET
 
 const fulfillOrder = async session => {
+
   console.log('Fulfilling order', session)
 
   return app.firestore().collection('users').doc(session.metadata.email)
@@ -33,7 +42,7 @@ const fulfillOrder = async session => {
 
 export default async (req, res) => {
   if (req.method === 'POST') {
-    const requestBuffer = await buffer(req)
+    const requestBuffer = await buffer(req) // generate certificate for stripe
     const payload = requestBuffer.toString()
     const sig = req.headers['stripe-signature']
 
@@ -50,7 +59,7 @@ export default async (req, res) => {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object
 
-      // fulfill the order...
+      // fulfill the order... add the order in the firestore DB using .set
       return fulfillOrder(session)
       .then(() => res.status(200))
       .catch(err => res.status(400).send(`Webhook error: ${err.message}`))
@@ -58,9 +67,90 @@ export default async (req, res) => {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-    externalResolver: true,
-  },
-}
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//     externalResolver: true,
+//   },
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { buffer } from 'micro'
+// import * as admin from 'firebase-admin'
+// import * as functions from ‘firebase-functions’
+
+// // secure a connection to firebase from the backend
+// const serviceAccount = require('../../../permissions.json')
+// // const serviceAccount = require(process.env.SERVICE_ACCOUNTS_FILE)
+
+// const app = !admin.apps.length ? admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// }) 
+// : admin.app()
+
+// // establish connection to stripe
+
+// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+// const endpointSecret = process.env.STRIPE_SIGNING_SECRET
+
+// const fulfillOrder = async session => {
+//   console.log('Fulfilling order', session)
+
+//   return app.firestore().collection('users').doc(session.metadata.email)
+//   .collection('orders').doc(session.id).set({
+//     amount: session.amount_total / 100,
+//     amount_shipping: session.total_details.amount_shipping / 100,
+//     images: JSON.parse(session.metadata.images),
+//     timestamp: admin.firestore.FieldValue.serverTimestamp()
+//   })
+//   .then(() =>{
+//     console.log(`SUCCESS: Order ${session.id} has been added to the database`)
+//   })
+// }
+
+// export default async (req, res) => {
+//   if (req.method === 'POST') {
+//     const requestBuffer = await buffer(req) // generate certificate for stripe
+//     const payload = requestBuffer.toString()
+//     const sig = req.headers['stripe-signature']
+
+//     let event
+
+//     // varify that the EVENT posted came from stripe
+//     try {
+//       event = stripe.webhooks.constructEvent(payload, sig, endpointSecret)
+//     } catch (err) {
+//       console.log('ERROR', err.message)
+//       return res.status(400).send(`Webhook error: ${err.message}`)
+//     }
+//     // handle the checkout.session.completed event
+//     if (event.type === 'checkout.session.completed') {
+//       const session = event.data.object
+
+//       // fulfill the order... add the order in the firestore DB using .set
+//       return fulfillOrder(session)
+//       .then(() => res.status(200))
+//       .catch(err => res.status(400).send(`Webhook error: ${err.message}`))
+//     }
+//   }
+// }
+
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//     externalResolver: true,
+//   },
+// }
