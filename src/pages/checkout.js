@@ -31,7 +31,7 @@ function Checkout() {
       })
       if(result.error) alert(result.error.message)
   }
-
+console.log(error)
   return (
     <div className="bg-gray-100">
       <Header />
