@@ -89,5 +89,5 @@ function Checkout() {
     </div>
   )
 }
-
+console.log(session)
 export default Checkout
