@@ -4,7 +4,7 @@
 // import { useSelector } from "react-redux";
 // import { selectItems, selectTotal } from "../slices/basketSlice";
 // import CheckoutProduct from "../components/CheckoutProduct";
-// import NumberFormat from 'react-number-format';
+import NumberFormat from 'react-number-format';
 // import axios from 'axios';
 // import { useSession } from "next-auth/client";
 // import { loadStripe } from "@stripe/stripe-js"
@@ -101,7 +101,7 @@ import Header from "../components/Header";
 import Image from "next/image";
 import { selectItems, selectTotal } from "../slices/basketSlice";
 import { useSelector } from "react-redux";
-import Currency from "react-currency-formatter";
+// import Currency from "react-currency-formatter";
 import CheckoutProduct from "../components/CheckoutProduct";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
@@ -180,7 +180,8 @@ function Checkout() {
               <h2 className="whitespace-nowrap">
                 Subtotal ({items.length} items):{" "}
                 <span className="font-bold">
-                  <Currency quantity={total} currency="GBP" />
+                  {/* <Currency quantity={total} currency="GBP" /> */}
+                  <NumberFormat value={total} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                 </span>
               </h2>
               <button
